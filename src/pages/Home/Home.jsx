@@ -14,7 +14,7 @@ export default function Home() {
   }
 
   function fetchWord() {
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en_US/${word}`)
+    fetch(`https://freedictionaryapi.com/api/v1/entries/en/${word}`)
       .then((res) => res.json())
       .then((data) => setResult(data[0]))
        setWord("");
