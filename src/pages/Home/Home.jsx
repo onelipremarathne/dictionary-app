@@ -57,9 +57,15 @@ export default function Home() {
 }
 
   function playMusic() {
-    const audio = new Audio(result.phonetics[0].audio);
-    audio.play();
-  }
+  if (!result?.word) return;
+
+  const speech = new SpeechSynthesisUtterance(result.word);
+  speech.lang = "en-US";
+  speech.rate = 0.8;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(speech);
+}
 
   const cardElements = result
     ? result.meanings.map((meaning, index) => (
