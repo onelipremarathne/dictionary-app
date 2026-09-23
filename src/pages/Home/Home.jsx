@@ -13,12 +13,48 @@ export default function Home() {
     setWord(event.target.value);
   }
 
-  function fetchWord() {
-    fetch(`https://freedictionaryapi.com/api/v1/entries/en/${word}`)
-      .then((res) => res.json())
-      .then((data) => setResult(data[0]))
-       setWord("");
+  async function fetchWord() {
+  if (!word.trim()) return;
+
+  try {
+    const res = await fetch(
+      `https://freedictionaryapi.com/api/v1/entries/en/${word.trim()}`
+    );
+
+    if (!res.ok) {
+      throw new Error(`API request failed: ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    const formattedResult = {
+      word: data.word,
+
+      phonetics: data.entries.flatMap((entry) =>
+        (entry.pronunciations || [])
+          .filter((pronunciation) => pronunciation.audio)
+          .map((pronunciation) => ({
+            audio: pronunciation.audio,
+          }))
+      ),
+
+      meanings: data.entries.map((entry) => ({
+        partOfSpeech: entry.partOfSpeech,
+        definitions: entry.senses.map((sense) => ({
+          definition: sense.definition,
+          example: sense.examples?.[0] || null,
+        })),
+      })),
+    };
+
+    setResult(formattedResult);
+  } catch (error) {
+    console.error("Dictionary API error:", error);
+    setResult(null);
+  } finally {
+    setWord("");
   }
+}
 
   function playMusic() {
     const audio = new Audio(result.phonetics[0].audio);
